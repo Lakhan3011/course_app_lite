@@ -1,7 +1,8 @@
 const { Router } = require('express');
-const { userModel } = require('../db');
+const { userModel, purchaseModel } = require('../db');
 const bcrypt = require('bcrypt');
 const { z } = require('zod');
+const { userMiddeware } = require('../middleware/userMiddleware');
 
 const userRouter = Router();
 
@@ -104,7 +105,10 @@ userRouter.post('/signout', (req, res) => {
     })
 })
 
-userRouter.get('/purchases', (req, res) => {
+userRouter.get('/purchases', userMiddeware, async (req, res) => {
+    const courses = await purchaseModel.find({
+        userId: req.userId,
+    })
     res.json({
         message: "user sign-up successfully"
     })

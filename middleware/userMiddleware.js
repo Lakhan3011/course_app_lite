@@ -1,6 +1,4 @@
 function userMiddeware(req, res, next) {
-
-
     if (req.session && res.session.userId) {
         req.userId = req.session.userId;
         next()
