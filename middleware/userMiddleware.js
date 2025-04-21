@@ -1,5 +1,5 @@
-function userMiddeware(req, res, next) {
-    if (req.session && res.session.userId) {
+function userMiddleware(req, res, next) {
+    if (req.session && req.session.userId) {
         req.userId = req.session.userId;
         next()
     }
@@ -10,5 +10,5 @@ function userMiddeware(req, res, next) {
     }
 }
 
-module.exports = { userMiddeware }
+module.exports = { userMiddleware };
 

@@ -1,8 +1,8 @@
 const { Router } = require('express');
-const { userModel, purchaseModel } = require('../db');
+const { userModel, purchaseModel, courseModel } = require('../db');
 const bcrypt = require('bcrypt');
 const { z } = require('zod');
-const { userMiddeware } = require('../middleware/userMiddleware');
+const { userMiddleware } = require('../middleware/userMiddleware');
 
 const userRouter = Router();
 
@@ -105,12 +105,31 @@ userRouter.post('/signout', (req, res) => {
     })
 })
 
-userRouter.get('/purchases', userMiddeware, async (req, res) => {
-    const courses = await purchaseModel.find({
-        userId: req.userId,
+userRouter.get('/purchases', userMiddleware, async (req, res) => {
+    const userId = req.userId;
+
+    if (!userId) {
+        return res.status(401).json({
+            message: 'Unauthrorized access'
+        });
+    }
+    const purchases = await purchaseModel.find({
+        userId: userId,
     })
-    res.json({
-        message: "user sign-up successfully"
+
+    if (!purchases.length) {
+        return res.status(404).json({
+            message: 'No purchase found'
+        })
+    }
+
+    const purchasesIds = purchases.map(x => x.courseId);
+    const courses = await courseModel.find({
+        _id: { $in: purchasesIds }
+    })
+    res.status(200).json({
+        purchases: purchases,
+        courses: courses
     })
 })
 

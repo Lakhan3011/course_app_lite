@@ -115,7 +115,7 @@ adminRouter.post('/course', adminMiddleware, async (req, res) => {
         })
     }
 
-    const adminId = req.userId;
+    const adminId = req.adminId;
 
     const { title, description, price, imageUrl } = req.body;
 
@@ -151,7 +151,7 @@ adminRouter.put('/course', adminMiddleware, async (req, res) => {
             error: result.error
         })
     }
-    const adminId = req.userId;
+    const adminId = req.adminId;
 
     const { courseId, title, description, price, imageUrl } = req.body;
 
@@ -193,7 +193,7 @@ adminRouter.delete('/course', adminMiddleware, async (req, res) => {
 
     const { courseId } = req.body;
 
-    const course = await courseModel.findOne({ _id: courseId, creatorId: req.userId });
+    const course = await courseModel.findOne({ _id: courseId, creatorId: req.adminId });
 
     if (!course) {
         return res.status(404).json({
@@ -201,16 +201,24 @@ adminRouter.delete('/course', adminMiddleware, async (req, res) => {
         })
     }
 
-    await courseModel.deleteOne({ _id: courseId, creatorId: req.userId });
+    await courseModel.deleteOne({ _id: courseId, creatorId: req.adminId });
     res.status(200).json({
         message: "Course deleted..!!!!"
     })
 })
 
+adminRouter.get('/course/bulk', adminMiddleware, async (req, res) => {
+    const adminId = req.adminId;
+    // console.log(adminId);
+    const courses = await courseModel.find({ creatorId: adminId });
+    // console.log(courses);
+    res.status(200).json({ courses });
+})
+
 adminRouter.get('/course/:id', adminMiddleware, async (req, res) => {
     const courseId = req.params.id;
 
-    const course = await courseModel.findOne({ _id: courseId, creatorId: req.userId });
+    const course = await courseModel.findOne({ _id: courseId, creatorId: req.adminId });
     // console.log(course);
 
     if (!course) {
@@ -223,13 +231,6 @@ adminRouter.get('/course/:id', adminMiddleware, async (req, res) => {
 
 })
 
-adminRouter.get('/course/bulk', adminMiddleware, async (req, res) => {
-    const adminId = req.userId;
-    // console.log(adminId);
-    const courses = await courseModel.find({ creatorId: adminId });
-    // console.log(courses);
-    res.status(200).json({ courses });
-})
 
 
 module.exports = {
